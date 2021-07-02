@@ -12,13 +12,17 @@ class ExceptionSubscriber implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event)
     {
         $req = $event->getRequest();
-        if(substr($req->getPathInfo(),0,5)!=='/api/'){
+        if (substr($req->getPathInfo(), 0, 5) !== '/api/') {
             return;
         }
         $err = FlattenException::createFromThrowable($event->getThrowable());
+        $msg = $err->getStatusText();
+        if (true) { //TODO check for dev environment
+            $msg = $err->getMessage();
+        }
         $resp = new JsonResponse([
-            'code'=> $err->getStatusCode(),
-            'message'=> $err->getStatusText()
+            'code' => $err->getStatusCode(),
+            'message' => $msg
         ], $err->getStatusCode());
         $event->setResponse($resp);
     }
