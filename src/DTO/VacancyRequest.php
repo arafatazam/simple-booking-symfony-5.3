@@ -2,14 +2,28 @@
 
 namespace App\DTO;
 
+use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation as JMS;
 use DateTimeInterface;
 
 class VacancyRequest
 {
+    /**
+     * @JMS\Type("DateTimeInterface<'!Y-m-d'>")
+     * @Assert\NotBlank
+     */
     public DateTimeInterface $date;
 
+    /**
+     * @Assert\NotBlank
+     * @Assert\PositiveOrZero
+     */
     public ?int $availableSlots;
 
+    /**
+     * @Assert\NotBlank
+     * @Assert\PositiveOrZero
+     */
     public ?float $price;
 
 

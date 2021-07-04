@@ -9,6 +9,8 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class ExceptionSubscriber implements EventSubscriberInterface
 {
+    const ERR_VALIDATION = '_err_validation';
+
     public function onKernelException(ExceptionEvent $event)
     {
         $req = $event->getRequest();
@@ -22,7 +24,8 @@ class ExceptionSubscriber implements EventSubscriberInterface
         }
         $resp = new JsonResponse([
             'code' => $err->getStatusCode(),
-            'message' => $msg
+            'message' => $msg,
+            'errors' => $req->attributes->get(self::ERR_VALIDATION, [])
         ], $err->getStatusCode());
         $event->setResponse($resp);
     }
