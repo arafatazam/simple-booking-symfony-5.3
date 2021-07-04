@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class VacancyManager implements VacancyManagerInterface
 {
-    const VACANCY_NOT_FOUND_MSG = 'No vacancy found on this date.';
+    const NOT_FOUND_MSG = 'No vacancy found on this date.';
 
     private $em;
 
@@ -34,9 +34,9 @@ class VacancyManager implements VacancyManagerInterface
     public function read(DateTimeInterface $date): Vacancy
     {
         $repo = $this->em->getRepository(Vacancy::class);
-        $vacancy = $repo->findOneBy(['date' => $date]);
+        $vacancy = $repo->findOneBy(['date' => $date->getTimestamp()]);
         if (is_null($vacancy)) {
-            throw new NotFoundHttpException(self::VACANCY_NOT_FOUND_MSG);
+            throw new NotFoundHttpException(self::NOT_FOUND_MSG);
         }
         return $vacancy;
     }
@@ -47,7 +47,7 @@ class VacancyManager implements VacancyManagerInterface
         /**@var Vacancy */
         $vacancy = $repo->findOneBy(['date' => $vr->getDate()]);
         if (is_null($vacancy)) {
-            throw new NotFoundHttpException(self::VACANCY_NOT_FOUND_MSG);
+            throw new NotFoundHttpException(self::NOT_FOUND_MSG);
         }
         if (!is_null($vr->getAvailableSlots())) {
             if ($vr->getAvailableSlots() < $vacancy->getBookedSlots()) {

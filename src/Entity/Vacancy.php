@@ -3,7 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\VacancyRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * @ORM\Entity(repositoryClass=VacancyRepository::class)
@@ -12,7 +14,8 @@ class Vacancy
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="integer")
+     * @JMS\Exclude
      */
     private $date;
 
@@ -24,22 +27,26 @@ class Vacancy
     /**
      * @ORM\Column(type="integer")
      */
-    private $bookedSlots=0;
+    private $bookedSlots = 0;
 
     /**
      * @ORM\Column(type="float")
      */
     private $price;
 
+    /**
+     * @JMS\VirtualProperty
+     * @JMS\Type("DateTimeInterface<'Y-m-d'>")
+     */
     public function getDate(): ?\DateTimeInterface
     {
-        return $this->date;
+        return DateTime::createFromFormat('U', $this->date);
     }
 
     public function setDate(\DateTimeInterface $date): self
     {
-        if(is_null($this->date)){
-            $this->date = $date;
+        if (is_null($this->date)) {
+            $this->date = $date->getTimestamp();
         }
         return $this;
     }
