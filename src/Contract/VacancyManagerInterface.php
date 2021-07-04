@@ -10,5 +10,5 @@ interface VacancyManagerInterface
 {
     public function create(VacancyRequest $vr);
     public function read(DateTimeInterface $date): Vacancy;
-    public function update(VacancyRequest $vr);
+    public function update(DateTimeInterface $date, VacancyRequest $vr);
 }

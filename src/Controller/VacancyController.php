@@ -48,4 +48,16 @@ class VacancyController extends AbstractController
         $payload = $this->serializer->serialize($vacancy, 'json');
         return new JsonResponse($payload, Response::HTTP_OK, [], true);
     }
+
+    /**
+     * @Route("/{date}", name="vacancy.update", methods={"POST"})
+     * @ParamConverter("date", options={"format": "!Y-m-d"})
+     */
+    public function update(DateTime $date, VacancyRequest $vacancy): Response
+    {
+        $this->vacancyManager->update($date, $vacancy);
+        return $this->json([
+            'success' => true
+        ], Response::HTTP_OK);
+    }
 }

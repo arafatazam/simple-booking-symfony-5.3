@@ -8,6 +8,7 @@ use App\Entity\Vacancy;
 use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use LogicException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class VacancyManager implements VacancyManagerInterface
@@ -41,11 +42,14 @@ class VacancyManager implements VacancyManagerInterface
         return $vacancy;
     }
 
-    public function update(VacancyRequest $vr)
+    public function update(DateTimeInterface $date, VacancyRequest $vr)
     {
+        if ($date != $vr->getDate()) {
+            throw new BadRequestHttpException('Cannot update date');
+        }
         $repo = $this->em->getRepository(Vacancy::class);
         /**@var Vacancy */
-        $vacancy = $repo->findOneBy(['date' => $vr->getDate()]);
+        $vacancy = $repo->findOneBy(['date' => $vr->getDate()->getTimestamp()]);
         if (is_null($vacancy)) {
             throw new NotFoundHttpException(self::NOT_FOUND_MSG);
         }
