@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ReservationRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * @ORM\Entity(repositoryClass=ReservationRepository::class)
@@ -19,11 +20,13 @@ class Reservation
 
     /**
      * @ORM\Column(type="date")
+     * @JMS\Type("DateTimeInterface<'Y-m-d'>")
      */
     private $startDate;
 
     /**
      * @ORM\Column(type="date")
+     * @JMS\Type("DateTimeInterface<'Y-m-d'>")
      */
     private $endDate;
 
