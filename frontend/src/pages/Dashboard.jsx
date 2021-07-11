@@ -1,5 +1,6 @@
 import React from "react";
+import { Calendar } from "antd";
 
 export default function Dashboard() {
-  return <h1>Dashboard</h1>;
+  return <Calendar></Calendar>;
 }
