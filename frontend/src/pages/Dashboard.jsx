@@ -9,6 +9,7 @@ import {
   Button,
   InputNumber,
   notification,
+  Input,
 } from "antd";
 
 const { Text } = Typography;
@@ -67,19 +68,56 @@ export default function Dashboard() {
     );
   };
 
-  const populateModal = async (date) => {
-    form.resetFields();
-    const resp = await fetch(`${api_url}/vacancy/${date.format("YYYY-MM-DD")}`);
+  const populateModal = async (dateMoment) => {
+    const date = dateMoment.format("YYYY-MM-DD");
+    form.setFieldsValue({
+      date: date,
+      available_slots: 1,
+      price: 0.0,
+    });
+    const resp = await fetch(`${api_url}/vacancy/${date}`);
     if (resp.status == 404) {
       setModalSubmit("Create");
       return;
     }
     const vacancy = await resp.json();
     form.setFieldsValue({
-      slotsAvailable: vacancy["available_slots"],
+      date: vacancy["date"],
+      available_slots: vacancy["available_slots"],
       price: vacancy["price"],
     });
     setModalSubmit("Update");
+  };
+
+  const onFormSubmit = async (values) => {
+    setModalBusy(true);
+    let url = api_url + "/vacancy/";
+    if (modalSubmit == "Update") {
+      url += values["date"];
+    }
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+      notification.open({
+        type: "success",
+        message: "Success",
+        description: `Successfully ${modalSubmit}ed`,
+      });
+      updateCalender(moment(values["date"]));
+    } catch (error) {
+      notification.open({
+        type: "error",
+        message: "Error",
+        description: "Error occured",
+      });
+    }
+    setModalVisible(false);
   };
 
   const onDateChange = (date) => {
@@ -101,7 +139,7 @@ export default function Dashboard() {
     const date = moment();
     selecTed.current = date;
     updateCalender(date);
-  },[]);
+  }, []);
 
   return (
     <>
@@ -124,13 +162,13 @@ export default function Dashboard() {
             onFinishFailed={(errorInfo) =>
               notification.open({ type: "error", message: errorInfo })
             }
-            onFinish={(values) => {
-              console.log(values);
-              setModalVisible(false);
-            }}
+            onFinish={onFormSubmit}
           >
+            <Form.Item name="date" hidden>
+              <Input type="date" />
+            </Form.Item>
             <Form.Item
-              name="slotsAvailable"
+              name="available_slots"
               rules={[{ required: true, type: "integer", min: 1 }]}
               label="Available Slots"
             >
@@ -138,7 +176,7 @@ export default function Dashboard() {
             </Form.Item>
             <Form.Item
               name="price"
-              rules={[{ required: true, type: "float", min: 0 }]}
+              rules={[{ required: true, type: "number", min: 0 }]}
               label="Price"
             >
               <InputNumber placeholder="Input price" />
