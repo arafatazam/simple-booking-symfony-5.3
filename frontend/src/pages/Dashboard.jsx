@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import moment from "moment";
 import {
   Calendar,
@@ -17,19 +17,16 @@ const api_url = import.meta.env.VITE_API_URL;
 
 export default function Dashboard() {
   const [calendarBusy, setCalenderBusy] = useState(false);
-  const [vacancyData, setVacancyData] = useState({});
+  const [calendarData, setCalendarData] = useState({});
   const [form] = Form.useForm();
   const selecTed = useRef(null);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalBusy, setModalBusy] = useState(false);
+  const [modalSubmit, setModalSubmit] = useState("Submit");
 
-  const onPanelChange = async (date, mode) => {
-    if (mode == "year") {
-      return;
-    }
+  const updateCalender = async (date) => {
     setCalenderBusy(true);
-
     const startMoment = moment(date.format("YYYY-MM-DD")).date(1).day(0);
     const startDate = startMoment.format("YYYY-MM-DD");
     const endDate = startMoment.add(41, "days").format("YYYY-MM-DD");
@@ -40,23 +37,30 @@ export default function Dashboard() {
       acc[curr.date] = curr;
       return acc;
     }, {});
-    setVacancyData(vacancyData);
+    setCalendarData(vacancyData);
     setCalenderBusy(false);
+  };
+
+  const onPanelChange = async (date, mode) => {
+    if (mode == "year") {
+      return;
+    }
+    await updateCalender(date);
   };
 
   const renderDateCell = (date) => {
     let key = date.format("YYYY-MM-DD");
-    if (!vacancyData[key]) {
+    if (!calendarData[key]) {
       return <Text type="secondary">Click To Create Vacancy</Text>;
     }
     return (
       <>
         <p>
-          <Text>Availabe - {vacancyData[key]["available_slots"]}</Text>
+          <Text>Availabe - {calendarData[key]["available_slots"]}</Text>
         </p>
         <p>
           <Text type="warning" mark>
-            Booked - {vacancyData[key]["booked_slots"]}
+            Booked - {calendarData[key]["booked_slots"]}
           </Text>
         </p>
       </>
@@ -67,14 +71,15 @@ export default function Dashboard() {
     form.resetFields();
     const resp = await fetch(`${api_url}/vacancy/${date.format("YYYY-MM-DD")}`);
     if (resp.status == 404) {
+      setModalSubmit("Create");
       return;
     }
     const vacancy = await resp.json();
-    console.log(vacancy);
     form.setFieldsValue({
       slotsAvailable: vacancy["available_slots"],
       price: vacancy["price"],
     });
+    setModalSubmit("Update");
   };
 
   const onDateChange = (date) => {
@@ -91,6 +96,13 @@ export default function Dashboard() {
     populateModal(date);
     setModalBusy(false);
   };
+
+  useEffect(() => {
+    const date = moment();
+    selecTed.current = date;
+    updateCalender(date);
+  },[]);
+
   return (
     <>
       <Spin spinning={calendarBusy} size="large">
@@ -133,7 +145,7 @@ export default function Dashboard() {
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit">
-                Submit
+                {modalSubmit}
               </Button>
             </Form.Item>
           </Form>
