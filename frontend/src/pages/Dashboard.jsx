@@ -13,6 +13,8 @@ import {
 
 const { Text } = Typography;
 
+const api_url = import.meta.env.VITE_API_URL;
+
 export default function Dashboard() {
   const [calendarBusy, setCalenderBusy] = useState(false);
   const [vacancyData, setVacancyData] = useState({});
@@ -27,12 +29,11 @@ export default function Dashboard() {
       return;
     }
     setCalenderBusy(true);
-    
+
     const startMoment = moment(date.format("YYYY-MM-DD")).date(1).day(0);
     const startDate = startMoment.format("YYYY-MM-DD");
     const endDate = startMoment.add(41, "days").format("YYYY-MM-DD");
-    
-    const api_url = import.meta.env.VITE_API_URL;
+
     const response = await fetch(`${api_url}/vacancy/${startDate}/${endDate}`);
     const payload = await response.json();
     const vacancyData = payload.reduce((acc, curr) => {
@@ -62,13 +63,18 @@ export default function Dashboard() {
     );
   };
 
-  const showModal = (date) => {
+  const populateModal = async (date) => {
     form.resetFields();
+    const resp = await fetch(`${api_url}/vacancy/${date.format("YYYY-MM-DD")}`);
+    if (resp.status == 404) {
+      return;
+    }
+    const vacancy = await resp.json();
+    console.log(vacancy);
     form.setFieldsValue({
-      slotsAvailable: 12,
-      price: 10.5,
+      slotsAvailable: vacancy["available_slots"],
+      price: vacancy["price"],
     });
-    setModalVisible(true);
   };
 
   const onDateChange = (date) => {
@@ -80,7 +86,10 @@ export default function Dashboard() {
     ) {
       return;
     }
-    showModal(date);
+    setModalVisible(true);
+    setModalBusy(true);
+    populateModal(date);
+    setModalBusy(false);
   };
   return (
     <>
