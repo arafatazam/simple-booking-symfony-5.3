@@ -50,6 +50,18 @@ class VacancyController extends AbstractController
     }
 
     /**
+     * @Route("/{start}/{end}", name="vacancy.range", methods={"GET"})
+     * @ParamConverter("start", options={"format": "!Y-m-d"})
+     * @ParamConverter("end", options={"format": "!Y-m-d"})
+     */
+    public function rangeRead(DateTime $start, DateTime $end): Response
+    {
+        $result = $this->vacancyManager->rangeRead($start, $end);
+        $payload = $this->serializer->serialize($result, 'json');
+        return new JsonResponse($payload, Response::HTTP_OK, [], true);
+    }
+
+    /**
      * @Route("/{date}", name="vacancy.update", methods={"POST"})
      * @ParamConverter("date", options={"format": "!Y-m-d"})
      */
