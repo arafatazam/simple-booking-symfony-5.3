@@ -17,7 +17,6 @@ class ReservationRequest
     /**
      * @JMS\Type("DateTime<'!Y-m-d'>")
      * @Assert\NotBlank
-     * @Assert\GreaterThanOrEqual(propertyPath = "startDate")
      */
     public DateTimeInterface $endDate;
 

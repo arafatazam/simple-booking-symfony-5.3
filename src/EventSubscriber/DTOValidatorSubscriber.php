@@ -6,7 +6,6 @@ use App\Converter\DTOConverter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpKernel\Event\ControllerArgumentsEvent;
-use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DTOValidatorSubscriber implements EventSubscriberInterface
