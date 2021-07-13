@@ -42,7 +42,7 @@ export default function MakeReservation() {
   return (
     <Spin spinning={formBusy}>
       <Form form={form} onFinish={onFormSubmit}>
-        <Form.Item name="dates">
+        <Form.Item name="dates" rules={[{ required: true }]}>
           <DatePicker.RangePicker />
         </Form.Item>
         <Form.Item>
